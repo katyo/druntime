@@ -115,6 +115,13 @@ else version (Solaris)
 {
     void __assert_c99(const(char)* exp, const(char)* file, uint line, const(char)* func);
 }
+else version (CRuntime_Newlib)
+{
+    /***
+     * Assert failure function in the Newlib C library.
+     */
+    void __assert_fail(const(char)* exp, const(char)* file, uint line, const(char)* func);
+}
 else
 {
     static assert(0);

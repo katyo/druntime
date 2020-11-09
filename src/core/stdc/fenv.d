@@ -504,6 +504,11 @@ else version (CRuntime_UClibc)
         static assert(false, "Architecture not supported.");
     }
 }
+else version (CRuntime_Newlib)
+{
+    alias int fenv_t;
+    alias int fexcept_t;
+}
 else
 {
     static assert( false, "Unsupported platform" );
@@ -571,6 +576,13 @@ else version (Solaris)
     else
     {
         static assert(0, "Unimplemented architecture");
+    }
+}
+else version (CRuntime_Newlib)
+{
+    enum
+    {
+        FE_ALL_EXCEPT = 0, ///
     }
 }
 else
@@ -860,6 +872,12 @@ else version (CRuntime_UClibc)
 {
     ///
     enum FE_DFL_ENV = cast(fenv_t*)(-1);
+}
+else version (CRuntime_Newlib)
+{
+    private extern const fenv_t* _fe_dfl_env;
+
+    alias FE_DFL_ENV = _fe_dfl_env;
 }
 else
 {

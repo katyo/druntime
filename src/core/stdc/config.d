@@ -143,6 +143,35 @@ else version (Posix)
     alias long  cpp_longlong;
     alias ulong cpp_ulonglong;
   }
+} else version (CRuntime_Newlib) {
+  static if ( (void*).sizeof > int.sizeof )
+  {
+    enum __c_longlong  : long;
+    enum __c_ulonglong : ulong;
+
+    alias long  c_long;
+    alias ulong c_ulong;
+
+    alias long   cpp_long;
+    alias ulong  cpp_ulong;
+
+    alias __c_longlong  cpp_longlong;
+    alias __c_ulonglong cpp_ulonglong;
+  }
+  else
+  {
+    enum __c_long  : int;
+    enum __c_ulong : uint;
+
+    alias int   c_long;
+    alias uint  c_ulong;
+
+    alias __c_long   cpp_long;
+    alias __c_ulong  cpp_ulong;
+
+    alias long  cpp_longlong;
+    alias ulong cpp_ulonglong;
+  }
 }
 
 version (CRuntime_Microsoft)

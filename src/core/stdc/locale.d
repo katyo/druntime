@@ -49,12 +49,21 @@ struct lconv
     byte  n_sep_by_space;
     byte  p_sign_posn;
     byte  n_sign_posn;
-    byte  int_p_cs_precedes;
-    byte  int_p_sep_by_space;
-    byte  int_n_cs_precedes;
-    byte  int_n_sep_by_space;
-    byte  int_p_sign_posn;
-    byte  int_n_sign_posn;
+    version (CRuntime_Newlib) {
+        byte  int_n_cs_precedes;
+        byte  int_n_sep_by_space;
+        byte  int_n_sign_posn;
+        byte  int_p_cs_precedes;
+        byte  int_p_sep_by_space;
+        byte  int_p_sign_posn;
+    } else {
+        byte  int_p_cs_precedes;
+        byte  int_p_sep_by_space;
+        byte  int_n_cs_precedes;
+        byte  int_n_sep_by_space;
+        byte  int_p_sign_posn;
+        byte  int_n_sign_posn;
+    }
 }
 
 version (CRuntime_Glibc)
@@ -280,6 +289,23 @@ else version (CRuntime_UClibc)
     enum LC_MEASUREMENT    = 11;
     ///
     enum LC_IDENTIFICATION = 12;
+}
+else version (CRuntime_Newlib)
+{
+    ///
+    enum LC_ALL      = 0;
+    ///
+    enum LC_COLLATE  = 1;
+    ///
+    enum LC_CTYPE    = 2;
+    ///
+    enum LC_MONETARY = 3;
+    ///
+    enum LC_NUMERIC  = 4;
+    ///
+    enum LC_TIME     = 5;
+    ///
+    enum LC_MESSAGES = 6;
 }
 else
 {

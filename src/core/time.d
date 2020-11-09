@@ -330,6 +330,10 @@ else version (Solaris) enum ClockType
     second = 6,
     threadCPUTime = 7,
 }
+else version (CRuntime_Newlib) enum ClockType
+{
+    normal = 0,
+}
 else
 {
     // It needs to be decided (and implemented in an appropriate version branch
@@ -2075,6 +2079,14 @@ struct MonoTimeImpl(ClockType clockType)
     {
         enum clockArg = _posixClock(clockType);
     }
+    else version (CRuntime_Newlib)
+    {
+        static if (clockType != ClockType.normal)
+        {
+            static assert(0, "ClockType." ~ _clockName ~
+                          " is not supported by MonoTimeImpl on this system.");
+        }
+    }
     else
         static assert(0, "Unsupported platform");
 
@@ -2536,6 +2548,10 @@ extern(C) void _d_initMonoTime()
                 }
             }
         }
+    }
+    else version (CRuntime_Newlib)
+    {
+        tps[0] = CLOCKS_PER_SEC;
     }
 }
 

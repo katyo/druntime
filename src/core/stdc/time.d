@@ -19,6 +19,51 @@ version (Posix)
     public import core.sys.posix.stdc.time;
 else version (Windows)
     public import core.sys.windows.stdc.time;
+else version (CRuntime_Newlib)
+{
+    private import core.stdc.config;
+
+    version (RISCV32) enum isRISCV = true;
+    else version (RISCV64) enum isRISCV = true;
+    else enum isRISCV = false;
+
+    version (ARM) enum isARM = true;
+    else version (AArch64) enum isARM = true;
+    else enum isARM = false;
+
+    enum isRTEMS = false;
+    enum isVISIUM = false;
+
+    extern (C):
+    @trusted: // There are only a few functions here that use unsafe C strings.
+    nothrow:
+    @nogc:
+
+    ///
+    struct tm
+    {
+        int     tm_sec;     /// seconds after the minute - [0, 60]
+        int     tm_min;     /// minutes after the hour - [0, 59]
+        int     tm_hour;    /// hours since midnight - [0, 23]
+        int     tm_mday;    /// day of the month - [1, 31]
+        int     tm_mon;     /// months since January - [0, 11]
+        int     tm_year;    /// years since 1900
+        int     tm_wday;    /// days since Sunday - [0, 6]
+        int     tm_yday;    /// days since January 1 - [0, 365]
+        int     tm_isdst;   /// Daylight Saving Time flag
+    }
+
+    ///
+    alias long time_t;
+    ///
+    alias c_ulong clock_t;
+
+    static if (isRTEMS || isVISIUM || isRISCV) enum clock_t CLOCKS_PER_SEC = 1000_000;
+    static if (isARM) enum clock_t CLOCKS_PER_SEC = 100;
+    else enum clock_t CLOCKS_PER_SEC = 1_000;
+
+    clock_t clock();
+}
 else
     static assert(0, "unsupported system");
 

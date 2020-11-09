@@ -115,6 +115,24 @@ else version (CRuntime_UClibc)
         wchar_t __wc = 0;
     }
 }
+else version (CRuntime_Newlib)
+{
+    ///
+    struct __mbstate_t {
+        int __count;
+
+        union __value_t
+        {
+            wint_t __wch;
+            ubyte[4] __wchb;
+        }
+
+        __value_t __value;
+    }
+
+    ///
+    alias mbstate_t = __mbstate_t;
+}
 else
 {
     ///

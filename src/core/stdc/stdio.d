@@ -347,6 +347,30 @@ else version (CRuntime_UClibc)
         L_tmpnam     = 20
     }
 }
+else version (CRuntime_Newlib)
+{
+    enum
+    {
+        ///
+        BUFSIZ       = 1024,
+        ///
+        EOF          = -1,
+        ///
+        FOPEN_MAX    = 20,
+        ///
+        FILENAME_MAX = 1024,
+        ///
+        TMP_MAX      = 26,
+        ///
+        L_tmpnam     = 1024
+    }
+
+    struct __sbuf
+    {
+        ubyte *_base;
+        int _size;
+    }
+}
 else
 {
     static assert( false, "Unsupported platform" );
@@ -792,6 +816,65 @@ else version (CRuntime_UClibc)
     ///
     alias shared(__STDIO_FILE_STRUCT) FILE;
 }
+else version (CRuntime_Newlib)
+{
+    // Need to import wchar_ now since __mbstate_t now resides there
+    import core.stdc.wchar_ : mbstate_t;
+
+    ///
+    alias long off_t;
+
+    ///
+    alias c_long fpos_t;
+
+    ///
+    struct reent;
+
+    ///
+    struct flock_t;
+
+    ///
+    struct __sFILE
+    {
+        ubyte*          _p;
+        int             _r;
+        int             _w;
+        short           _flags;
+        short           _file;
+        __sbuf          _bf;
+        int             _lbfsize;
+
+        void*           _cookie;
+        int     function(reent*, void*, char*, int)              _read;
+        int     function(reent*, void*, const scope char*, int)  _write;
+        fpos_t  function(reent*, void*, fpos_t, int)             _seek;
+        int     function(reent*, void*)                          _close;
+
+        __sbuf          _ub;
+        ubyte*          _up;
+        int             _ur;
+
+        ubyte[3]        _ubuf;
+        ubyte[1]        _nbuf;
+
+        __sbuf          _lb;
+
+        int             _blksize;
+        off_t           _offset;
+
+        reent*          _data;
+
+        flock_t*        _lock;
+
+        mbstate_t       _mbstate;
+        int             _flags2;
+    }
+
+    ///
+    alias __sFILE _iobuf;
+    ///
+    alias shared(__sFILE) FILE;
+}
 else
 {
     static assert( false, "Unsupported platform" );
@@ -1125,6 +1208,36 @@ else version (CRuntime_UClibc)
     extern shared FILE* stdout;
     ///
     extern shared FILE* stderr;
+}
+else version (CRuntime_Newlib)
+{
+    enum
+    {
+        ///
+        _IOFBF = 0,
+        ///
+        _IOLBF = 1,
+        ///
+        _IONBF = 2,
+    }
+
+    struct _reent
+    {
+        int _errno;
+
+        FILE* _stdin;
+        FILE* _stdout;
+        FILE* _stderr;
+    }
+
+    // thread-local variable
+    extern __gshared _reent* _impure_ptr;
+
+    extern (D) {
+        pure FILE* stdin() { return _impure_ptr._stdin; }
+        pure FILE* stdout() { return _impure_ptr._stdout; }
+        pure FILE* stderr() { return _impure_ptr._stderr; }
+    }
 }
 else
 {
@@ -1740,6 +1853,29 @@ else version (CRuntime_UClibc)
     ///
     pragma(printf)
     int  vsnprintf(scope char* s, size_t n, scope const char* format, va_list arg);
+}
+else version (CRuntime_Newlib)
+{
+    @trusted
+    {
+        ///
+        void rewind(FILE* stream);
+        ///
+        pure void clearerr(FILE* stream);
+        ///
+        pure int  feof(FILE* stream);
+        ///
+        pure int  ferror(FILE* stream);
+        ///
+        int  fileno(FILE *stream);
+    }
+
+    ///
+    pragma(printf)
+    int snprintf(scope char* s, size_t n, scope const char* format, scope const ...);
+    ///
+    pragma(printf)
+    int vsnprintf(scope char* s, size_t n, scope const char* format, va_list arg);
 }
 else
 {

@@ -41,6 +41,16 @@ void abort(scope string msg, scope string filename = __FILE__, size_t line = __L
             }
         }
     }
+    else version (CRuntime_Newlib)
+    {
+        extern(C) int _write(int fd, scope const char *buf, int len) @nogc nothrow;
+
+        static void writeStr(scope const(char)[][] m...) @nogc nothrow @trusted
+        {
+            foreach (s; m)
+                _write(2, s.ptr, s.length);
+        }
+    }
     else
         static assert(0, "Unsupported OS");
 
